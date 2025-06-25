@@ -2,7 +2,7 @@
 import type { DialogType } from '@tg-search/core'
 
 import { useAuthStore, useChatStore, useSettingsStore, useWebsocketStore } from '@tg-search/stage-ui'
-import { useDark } from '@vueuse/core'
+import { useDark, useLocalStorage } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
@@ -34,9 +34,7 @@ const chatsFiltered = computed(() => {
 })
 
 type ChatGroup = DialogType | ''
-const selectedGroup = ref<ChatGroup>(
-  (localStorage.getItem('selectedGroup') as ChatGroup) || 'user',
-)
+const selectedGroup = useLocalStorage<ChatGroup>('selectedGroup', 'user')
 
 const activeChatGroup = computed(() => {
   if (route.params.chatId) {
@@ -58,7 +56,6 @@ function toggleSettingsDialog() {
 
 function toggleActiveChatGroup(group: ChatGroup) {
   selectedGroup.value = group
-  localStorage.setItem('selectedGroup', group)
 }
 </script>
 
@@ -93,7 +90,7 @@ function toggleActiveChatGroup(group: ChatGroup) {
         <input
           v-model="searchParams"
           type="text"
-          class="focus:ring-ring border-secondary bg-muted ring-offset-background dark:border-secondary dark:bg-muted placeholder:text-muted-foreground w-full border rounded-md px-3 py-2 pl-9 focus:outline-none focus:ring-2"
+          class="border-secondary bg-muted ring-offset-background focus:ring-ring placeholder:text-muted-foreground dark:bg-muted dark:border-secondary w-full border rounded-md px-3 py-2 pl-9 focus:outline-none focus:ring-2"
           placeholder="Search"
         >
       </div>

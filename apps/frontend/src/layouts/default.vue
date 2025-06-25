@@ -2,7 +2,7 @@
 import type { DialogType } from '@tg-search/core'
 
 import { useAuthStore, useChatStore, useSettingsStore, useWebsocketStore } from '@tg-search/stage-ui'
-import { useDark } from '@vueuse/core'
+import { useDark, useLocalStorage } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
@@ -34,9 +34,7 @@ const chatsFiltered = computed(() => {
 })
 
 type ChatGroup = DialogType | ''
-const selectedGroup = ref<ChatGroup>(
-  (localStorage.getItem('selectedGroup') as ChatGroup) || 'user',
-)
+const selectedGroup = useLocalStorage<ChatGroup>('selectedGroup', 'user')
 
 const activeChatGroup = computed(() => {
   if (route.params.chatId) {
@@ -58,7 +56,6 @@ function toggleSettingsDialog() {
 
 function toggleActiveChatGroup(group: ChatGroup) {
   selectedGroup.value = group
-  localStorage.setItem('selectedGroup', group)
 }
 </script>
 
