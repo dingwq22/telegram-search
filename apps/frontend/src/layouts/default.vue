@@ -5,7 +5,7 @@ import { useAuthStore, useChatStore, useSettingsStore, useWebsocketStore } from 
 import { useDark } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { RouterView, useRouter } from 'vue-router'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 
 import ChatsCollapse from '../components/layout/ChatsCollapse.vue'
 import SettingsDialog from '../components/layout/SettingsDialog.vue'
@@ -22,6 +22,7 @@ const authStore = useAuthStore()
 const { isLoggedIn } = storeToRefs(authStore)
 
 const router = useRouter()
+const route = useRoute()
 
 const settingsDialog = ref(false)
 const searchParams = ref('')
@@ -33,7 +34,19 @@ const chatsFiltered = computed(() => {
 })
 
 type ChatGroup = DialogType | ''
-const activeChatGroup = ref<ChatGroup>('user')
+const selectedGroup = ref<ChatGroup>(
+  (localStorage.getItem('selectedGroup') as ChatGroup) || 'user',
+)
+
+const activeChatGroup = computed(() => {
+  if (route.params.chatId) {
+    const currentChat = chatStore.getChat(route.params.chatId.toString())
+    if (currentChat) {
+      return currentChat.type
+    }
+  }
+  return selectedGroup.value
+})
 
 watch(theme, (newTheme) => {
   document.documentElement.setAttribute('data-theme', newTheme)
@@ -44,10 +57,8 @@ function toggleSettingsDialog() {
 }
 
 function toggleActiveChatGroup(group: ChatGroup) {
-  if (activeChatGroup.value === group)
-    activeChatGroup.value = 'user'
-  else
-    activeChatGroup.value = group
+  selectedGroup.value = group
+  localStorage.setItem('selectedGroup', group)
 }
 </script>
 

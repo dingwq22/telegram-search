@@ -1,15 +1,16 @@
 <script lang="ts" setup>
 import type { DialogType } from '@tg-search/core'
 
-import { useChatStore, useSettingsStore, useWebsocketStore } from '@tg-search/stage-ui'
+import { useAuthStore, useChatStore, useSettingsStore, useWebsocketStore } from '@tg-search/stage-ui'
 import { useDark } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 
 import ChatsCollapse from '../components/layout/ChatsCollapse.vue'
 import SettingsDialog from '../components/layout/SettingsDialog.vue'
 import SidebarSelector from '../components/layout/SidebarSelector.vue'
+import Avatar from '../components/ui/Avatar.vue'
 import { Button } from '../components/ui/Button'
 
 const settingsStore = useSettingsStore()
@@ -17,6 +18,11 @@ const { theme } = storeToRefs(settingsStore)
 const isDark = useDark()
 
 const websocketStore = useWebsocketStore()
+const authStore = useAuthStore()
+const { isLoggedIn } = storeToRefs(authStore)
+
+const router = useRouter()
+const route = useRoute()
 
 const settingsDialog = ref(false)
 const searchParams = ref('')
@@ -28,7 +34,19 @@ const chatsFiltered = computed(() => {
 })
 
 type ChatGroup = DialogType | ''
-const activeChatGroup = ref<ChatGroup>('user')
+const selectedGroup = ref<ChatGroup>(
+  (localStorage.getItem('selectedGroup') as ChatGroup) || 'user',
+)
+
+const activeChatGroup = computed(() => {
+  if (route.params.chatId) {
+    const currentChat = chatStore.getChat(route.params.chatId.toString())
+    if (currentChat) {
+      return currentChat.type
+    }
+  }
+  return selectedGroup.value
+})
 
 watch(theme, (newTheme) => {
   document.documentElement.setAttribute('data-theme', newTheme)
@@ -39,10 +57,8 @@ function toggleSettingsDialog() {
 }
 
 function toggleActiveChatGroup(group: ChatGroup) {
-  if (activeChatGroup.value === group)
-    activeChatGroup.value = 'user'
-  else
-    activeChatGroup.value = group
+  selectedGroup.value = group
+  localStorage.setItem('selectedGroup', group)
 }
 </script>
 
@@ -50,6 +66,25 @@ function toggleActiveChatGroup(group: ChatGroup) {
   <div
     class="bg-background h-screen w-full flex overflow-hidden text-sm font-medium"
   >
+    <!-- Login prompt banner -->
+    <div
+      v-if="!isLoggedIn"
+      class="fixed left-0 right-0 top-0 z-50 bg-yellow-500 px-4 py-2 text-center text-sm text-yellow-900 font-medium"
+    >
+      <div class="flex items-center justify-center gap-2">
+        <div class="i-lucide-alert-triangle" />
+        <span>请先登录 Telegram 账号以使用完整功能</span>
+        <Button
+          size="sm"
+          icon="i-lucide-user"
+          class="ml-2 border border-yellow-700 bg-yellow-600 text-yellow-100 hover:bg-yellow-700"
+          @click="router.push('/login')"
+        >
+          去登录
+        </Button>
+      </div>
+    </div>
+
     <div class="border-r-secondary w-[20%] flex flex-col border-r h-dvh md:w-[15%]">
       <div class="relative p-4">
         <div
@@ -58,7 +93,7 @@ function toggleActiveChatGroup(group: ChatGroup) {
         <input
           v-model="searchParams"
           type="text"
-          class="border-secondary bg-muted ring-offset-background focus:ring-ring placeholder:text-muted-foreground dark:bg-muted dark:border-secondary w-full border rounded-md px-3 py-2 pl-9 focus:outline-none focus:ring-2"
+          class="focus:ring-ring border-secondary bg-muted ring-offset-background dark:border-secondary dark:bg-muted placeholder:text-muted-foreground w-full border rounded-md px-3 py-2 pl-9 focus:outline-none focus:ring-2"
           placeholder="Search"
         >
       </div>
