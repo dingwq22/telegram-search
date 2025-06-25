@@ -7,10 +7,10 @@ import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 
-import Avatar from '../components/ui/Avatar.vue'
 import ChatsCollapse from '../components/layout/ChatsCollapse.vue'
 import SettingsDialog from '../components/layout/SettingsDialog.vue'
 import SidebarSelector from '../components/layout/SidebarSelector.vue'
+import Avatar from '../components/ui/Avatar.vue'
 import { Button } from '../components/ui/Button'
 
 const settingsStore = useSettingsStore()
@@ -58,7 +58,7 @@ function toggleActiveChatGroup(group: ChatGroup) {
     <!-- Login prompt banner -->
     <div
       v-if="!isLoggedIn"
-      class="fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-yellow-900 px-4 py-2 text-center text-sm font-medium"
+      class="fixed left-0 right-0 top-0 z-50 bg-yellow-500 px-4 py-2 text-center text-sm text-yellow-900 font-medium"
     >
       <div class="flex items-center justify-center gap-2">
         <div class="i-lucide-alert-triangle" />
@@ -66,7 +66,7 @@ function toggleActiveChatGroup(group: ChatGroup) {
         <Button
           size="sm"
           icon="i-lucide-user"
-          class="ml-2 bg-yellow-600 text-yellow-100 border border-yellow-700 hover:bg-yellow-700"
+          class="ml-2 border border-yellow-700 bg-yellow-600 text-yellow-100 hover:bg-yellow-700"
           @click="router.push('/login')"
         >
           去登录
