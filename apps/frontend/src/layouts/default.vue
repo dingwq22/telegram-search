@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import type { DialogType } from '@tg-search/core'
 
-import { useChatStore, useSettingsStore, useWebsocketStore } from '@tg-search/stage-ui'
+import { useAuthStore, useChatStore, useSettingsStore, useWebsocketStore } from '@tg-search/stage-ui'
 import { useDark } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 
+import Avatar from '../components/ui/Avatar.vue'
 import ChatsCollapse from '../components/layout/ChatsCollapse.vue'
 import SettingsDialog from '../components/layout/SettingsDialog.vue'
 import SidebarSelector from '../components/layout/SidebarSelector.vue'
@@ -17,6 +18,10 @@ const { theme } = storeToRefs(settingsStore)
 const isDark = useDark()
 
 const websocketStore = useWebsocketStore()
+const authStore = useAuthStore()
+const { isLoggedIn } = storeToRefs(authStore)
+
+const router = useRouter()
 
 const settingsDialog = ref(false)
 const searchParams = ref('')
@@ -50,6 +55,25 @@ function toggleActiveChatGroup(group: ChatGroup) {
   <div
     class="bg-background h-screen w-full flex overflow-hidden text-sm font-medium"
   >
+    <!-- Login prompt banner -->
+    <div
+      v-if="!isLoggedIn"
+      class="fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-yellow-900 px-4 py-2 text-center text-sm font-medium"
+    >
+      <div class="flex items-center justify-center gap-2">
+        <div class="i-lucide-alert-triangle" />
+        <span>请先登录 Telegram 账号以使用完整功能</span>
+        <Button
+          size="sm"
+          icon="i-lucide-user"
+          class="ml-2 bg-yellow-600 text-yellow-100 border border-yellow-700 hover:bg-yellow-700"
+          @click="router.push('/login')"
+        >
+          去登录
+        </Button>
+      </div>
+    </div>
+
     <div class="border-r-secondary w-[20%] flex flex-col border-r h-dvh md:w-[15%]">
       <div class="relative p-4">
         <div
