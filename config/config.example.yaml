@@ -54,6 +54,7 @@ api:
   # Embedding settings
   embedding:
     # Embedding provider (openai or ollama)
+    # Note: transformers provider is only available in browser environments
     provider: openai
     # Embedding model
     model: text-embedding-3-small

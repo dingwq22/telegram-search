@@ -1,4 +1,5 @@
 import type { TakeoutTaskMetadata } from '../services/takeout'
+import { randomUUID } from 'node:crypto'
 
 import { useLogger } from '@tg-search/common'
 import defu from 'defu'
@@ -25,7 +26,7 @@ export interface CoreTask<T extends CoreTaskType> {
 
 function createTask<T extends CoreTaskType>(type: T, metadata: CoreTasks[T]): CoreTask<T> {
   return {
-    taskId: crypto.randomUUID(),
+    taskId: randomUUID(),
     type,
     progress: 0,
     metadata,

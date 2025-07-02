@@ -24,6 +24,8 @@
     "grammy": "^1.36.3",
     "pathe": "^2.0.3",
     "telegram": "^2.26.22",
-    "valibot": "^1.1.0"
+    "valibot": "^1.1.0",
+    "web-worker": "^1.5.0",
+    "xsai-transformers": "0.0.7"
   }
 }
